@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class BookController {
         return "book/add";
     }
     @PostMapping("/add")
-    public String addBooks(@Valid @ModelAttribute("book") Book bookInput, BindingResult bindingResult, Model model){
+    public String addBooks(@Valid @ModelAttribute("Book") Book bookInput, BindingResult bindingResult, Model model){
         if (bindingResult != null && bindingResult.hasErrors()){
             List<String> errors = bindingResult.getAllErrors()
                     .stream()
@@ -60,7 +61,11 @@ public class BookController {
     }
 
     @PostMapping("/edit")
-    public String editBooks(@ModelAttribute("book") Book updateBook) {
+    public String editBooks(@Valid Book updateBook, Errors errors, Model model) {
+        if (errors != null && errors.getErrorCount() > 0) {
+            model.addAttribute("categories", categoryService.getAllCategories());
+            return "book/edit";
+        }
         // Logic để xử lý dữ liệu sách đã chỉnh sửa và lưu vào cơ sở dữ liệu
         bookService.updateBook(updateBook);
 
